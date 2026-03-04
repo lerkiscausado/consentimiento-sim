@@ -20,6 +20,8 @@ export default function ConsentimientoPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const id = searchParams.get("id");
+    const docType = searchParams.get("type") || "consentimiento";
+    const isDisentimiento = docType === "disentimiento";
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export default function ConsentimientoPage() {
                     firma: firmaPaciente,
                     acudiente: acudiente || null,
                     relacion: relacion || null,
-                    documento: "consentimiento"
+                    documento: docType
                 }),
             });
 
@@ -158,7 +160,7 @@ export default function ConsentimientoPage() {
                             <span className="material-symbols-outlined">arrow_back</span>
                         </button>
                         <h1 className="font-bold text-lg text-portal-text dark:text-white">
-                            Formulario de Consentimiento
+                            Formulario de {isDisentimiento ? "Disentimiento" : "Consentimiento"}
                         </h1>
                     </div>
                 </div>
@@ -172,7 +174,7 @@ export default function ConsentimientoPage() {
                         <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                             <div className="flex-1 text-center md:text-left">
                                 <h1 className="text-2xl font-black tracking-widest text-portal-text dark:text-white uppercase mb-2">
-                                    CONSENTIMIENTO INFORMADO
+                                    {isDisentimiento ? "DISENTIMIENTO INFORMADO" : "CONSENTIMIENTO INFORMADO"}
                                 </h1>
                                 <div className="h-0.5 w-full bg-slate-200 dark:bg-gray-700"></div>
                             </div>
@@ -231,17 +233,41 @@ export default function ConsentimientoPage() {
                             />
                         </div>
 
-                        {/* Legal Text Body */}
                         <div className="space-y-6 text-justify leading-relaxed text-slate-700 dark:text-gray-300">
-                            <p>
-                                confirmo que he recibido información clara y comprensible sobre mi diagnóstico y las opciones de <span className="font-bold">tratamiento</span> disponibles, proporcionadas por el <span className="font-bold">{especialista.nombre || "Especialista"}</span>. Se me ha explicado de manera detallada la naturaleza de mi condición, así como los posibles enfoques terapéuticos, incluyendo los beneficios, riesgos y desventajas de cada uno de ellos.
-                            </p>
-                            <p>
-                                Así mismo, se me ha informado sobre los cuidados necesarios en caso de optar por alguna de las alternativas propuestas y la importancia de un <span className="font-bold">seguimiento</span> adecuado. Se me ha dejado claro que no seguir los tratamientos recomendados también puede tener implicaciones para mi salud a largo plazo.
-                            </p>
-                            <p>
-                                Declaro que he comprendido toda la información proporcionada, he tenido la oportunidad de hacer preguntas y, en consecuencia, autorizo al <span className="font-bold">{especialista.nombre || "Especialista"}</span> y su equipo a continuar con el proceso de evaluación y orientación respecto a mi plan de manejo. Reconozco que la decisión final sobre el tratamiento a seguir es completamente voluntaria y será tomada por mi en el momento.
-                            </p>
+                            {isDisentimiento ? (
+                                <>
+                                    <p>
+                                        confirmo que he recibido información clara y comprensible sobre mi diagnóstico
+                                        y las opciones de tratamiento disponibles, proporcionadas por el <span className="font-bold">Dr. {especialista.nombre || "Marcelo Ramírez Barrios"}</span>. Se me ha
+                                        explicado de manera detallada la naturaleza de mi condición, así como los posibles enfoques terapéuticos,
+                                        incluyendo los beneficios, riesgos y desventajas de cada uno de ellos.
+                                    </p>
+                                    <p>
+                                        Así mismo, se me ha informado sobre los cuidados necesarios en caso de optar por alguna de las alternativas
+                                        propuestas y la importancia de un seguimiento adecuado. Se me ha dejado claro que no seguir los
+                                        tratamientos recomendados también puede tener implicaciones para mi salud a largo plazo.
+                                    </p>
+                                    <p>
+                                        A pesar de la información recibida y de haber tenido la oportunidad de hacer preguntas, manifiesto mi
+                                        decisión de no seguir los tratamientos propuestos en este momento. Reconozco que esta decisión es
+                                        completamente voluntaria y que entiendo las consecuencias de no optar por los tratamientos recomendados.
+                                        Declaro que mi decisión de no proceder con los tratamientos recomendados ha sido tomada de manera
+                                        informada, consciente y voluntaria.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <p>
+                                        obrando en nombre propio y en pleno uso de mis facultades mentales, certifico que he sido informado de manera clara y comprensible sobre el procedimiento médico al cual seré sometido(a).
+                                    </p>
+                                    <p>
+                                        He tenido la oportunidad de formular todas las preguntas necesarias, las cuales han sido resueltas satisfactoriamente. Comprendo la naturaleza del procedimiento, sus beneficios esperados, así como los riesgos inherentes y posibles complicaciones que podrían presentarse durante o después de su ejecución.
+                                    </p>
+                                    <p>
+                                        Entiendo que ningún procedimiento médico está exento de riesgos y que los resultados pueden variar según el caso clínico. Por lo tanto, manifiesto mi voluntad libre y consciente de autorizar al personal médico y asistencial para la realización de dicho procedimiento, asumiendo la responsabilidad que de ello se derive.
+                                    </p>
+                                </>
+                            )}
                         </div>
 
                         {/* Signature Blocks Container */}
@@ -364,14 +390,14 @@ export default function ConsentimientoPage() {
                                         ) : (
                                             <>
                                                 <span className="material-symbols-outlined">save</span>
-                                                Guardar Consentimiento
+                                                Guardar {isDisentimiento ? "Disentimiento" : "Consentimiento"}
                                             </>
                                         )}
                                     </button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>¿Está seguro de guardar este consentimiento?</AlertDialogTitle>
+                                        <AlertDialogTitle>¿Está seguro de guardar este {isDisentimiento ? "disentimiento" : "consentimiento"}?</AlertDialogTitle>
                                         <AlertDialogDescription>
                                             Una vez guardado, el documento quedará registrado en el sistema con la fecha actual y la firma capturada.
                                         </AlertDialogDescription>

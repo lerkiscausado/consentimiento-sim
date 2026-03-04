@@ -212,7 +212,7 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         type="button"
-                                                        onClick={() => router.push(`/dashboard/consentimiento?id=${resultado.id}`)}
+                                                        onClick={() => router.push(`/dashboard/consentimiento?id=${resultado.id}&type=consentimiento`)}
                                                         className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors flex items-center gap-1.5 border border-green-200 dark:border-green-800"
                                                     >
                                                         <span className="material-symbols-outlined text-sm">assignment_turned_in</span>
@@ -220,6 +220,7 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                                     </button>
                                                     <button
                                                         type="button"
+                                                        onClick={() => router.push(`/dashboard/consentimiento?id=${resultado.id}&type=disentimiento`)}
                                                         className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5 border border-red-200 dark:border-red-800"
                                                     >
                                                         <span className="material-symbols-outlined text-sm">assignment_late</span>

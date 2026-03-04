@@ -48,7 +48,7 @@ export default function DashboardLayout({
           </div>
           <div className="flex flex-col min-w-0">
             <h1 className="text-portal-text dark:text-white text-base font-bold leading-tight truncate">
-              Portal Médico
+              SIM - Portal Médico
             </h1>
             <p className="text-portal-muted dark:text-gray-400 text-xs font-medium">
               {session?.tipo === "empresa" ? "Acceso Empresa" : "Acceso Pacientes"}
