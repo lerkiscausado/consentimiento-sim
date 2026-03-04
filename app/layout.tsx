@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   description: "Consulta y descarga tus estudios clínicos",
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,6 +41,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} font-sans antialiased`}
       >
+        <Toaster position="top-right" richColors closeButton />
         {children}
       </body>
     </html>

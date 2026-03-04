@@ -28,9 +28,7 @@ export async function GET() {
         MAX(fecha_ingreso) AS ultimo_estudio,
         COUNT(CASE WHEN estado = 'PENDIENTE' THEN 1 END) AS pendientes
       FROM ordenes 
-      WHERE id_contrato = ?
-        AND (estado IS NULL OR estado <> 'CANCELADO')`,
-            [id]
+      WHERE (estado IS NULL OR estado <> 'CANCELADO')`
         );
 
         const data = rows[0];

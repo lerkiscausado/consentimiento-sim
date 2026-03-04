@@ -5,35 +5,29 @@ import { signJwt } from "@/lib/jwt";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { tipoIdentificacion, identificacion, password } = body;
+    const { usuario, password } = body;
 
-    if (!tipoIdentificacion || !identificacion || !password) {
+    if (!usuario || !password) {
       return NextResponse.json(
-        { ok: false, message: "Datos incompletos" },
+        { ok: false, message: "Usuario y contraseña son obligatorios" },
         { status: 400 }
       );
     }
 
-    const user = `${tipoIdentificacion}${identificacion}`;
-
     const query = `
       SELECT 
-        usuarios.id,
-        CONCAT(
-          usuarios.primer_nombre, ' ',
-          usuarios.PRIMER_APELLIDO, ' ',
-          usuarios.SEGUNDO_APELLIDO
-        ) AS paciente,
-         usuarios.correo_electronico AS email
-      FROM ordenes
-      INNER JOIN usuarios ON ordenes.ID_USUARIO = usuarios.ID
-      INNER JOIN sesiones ON usuarios.id = sesiones.ID_USUARIO
-      WHERE CONCAT(usuarios.ID_TIPO_IDENTIFICACION, usuarios.IDENTIFICACION) = ?
-        AND sesiones.CONTRASENA = ?
+              u.id,
+              e.nombre_empleado AS empleado,
+              c.nombre_cargo AS cargo
+      FROM users u
+      	JOIN empleados e ON u.id_empleado = e.id
+      	JOIN cargos c ON e.id_cargo=c.id
+      WHERE 
+      	u.usuario = ? AND u.pass = ?
       LIMIT 1
     `;
 
-    const [rows]: any = await pool.query(query, [user, password]);
+    const [rows]: any = await pool.query(query, [usuario, password]);
 
     if (rows.length === 0) {
       return NextResponse.json(
@@ -42,20 +36,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const paciente = rows[0];
+    const userData = rows[0];
 
     const token = await signJwt({
-      id: paciente.id,
-      nombre: paciente.paciente,
-      email: paciente.email,
+      id: userData.id,
+      nombre: userData.empleado,
+      tipo: "empresa",
+      cargo: userData.cargo,
     });
 
     const response = NextResponse.json({
       ok: true,
-      paciente: {
-        id: paciente.id,
-        nombre: paciente.paciente,
-        email: paciente.email,
+      usuario: {
+        id: userData.id,
+        nombre: userData.empleado,
+        tipo: "empresa",
+        cargo: userData.cargo,
       },
     });
 

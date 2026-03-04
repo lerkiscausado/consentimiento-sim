@@ -15,10 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 export default function LoginPage() {
-  const [tipoLogin, setTipoLogin] = useState<"pacientes" | "empresas">("pacientes");
-  const [tipoDocumento, setTipoDocumento] = useState("CC");
-  const [documento, setDocumento] = useState("");
-  const [usuarioEmpresa, setUsuarioEmpresa] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,14 +24,13 @@ export default function LoginPage() {
   const [empresaNombre, setEmpresaNombre] = useState("");
   const [loadingEmpresa, setLoadingEmpresa] = useState(true);
 
-
   useEffect(() => {
     const fetchEmpresaData = async () => {
       setLoadingEmpresa(true);
       try {
         const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/api/datos-empresa");
         const result = await res.json();
-        console.log("Datos empresa:", result); // Verificación solicitada
+        console.log("Datos empresa:", result);
 
         if (result.ok && result.data) {
           setEmpresaNombre(result.data.empresa);
@@ -52,60 +48,24 @@ export default function LoginPage() {
     fetchEmpresaData();
   }, []);
 
-  const validarFormulario = () => {
-    if (tipoLogin === "pacientes") {
-      if (!documento || !password) {
-        return "Documento y contraseña son obligatorios";
-      }
-    }
-
-    if (tipoLogin === "empresas") {
-      if (!usuarioEmpresa || !password) {
-        return "Usuario y contraseña son obligatorios";
-      }
-    }
-
-    return "";
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const errorValidacion = validarFormulario();
-    if (errorValidacion) {
-      setError(errorValidacion);
+    if (!usuario || !password) {
+      setError("Usuario y contraseña son obligatorios");
       return;
     }
 
     setLoading(true);
 
-    // API espera: tipoIdentificacion, identificacion, password (solo pacientes)
-    const payload =
-      tipoLogin === "pacientes"
-        ? {
-          tipoIdentificacion: tipoDocumento,
-          identificacion: documento,
-          password,
-        }
-        : {
-          tipo: "empresa",
-          usuario: usuarioEmpresa,
-          password,
-        };
-
     try {
-      const endpoint =
-        tipoLogin === "pacientes"
-          ? "/api/auth/login"
-          : "/api/auth/login-empresa";
-
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ usuario, password }),
       });
 
       const data = await response.json();
@@ -114,9 +74,8 @@ export default function LoginPage() {
         throw new Error(data.message || "Credenciales inválidas");
       }
 
-      // Respuesta exitosa paciente: { ok: true, paciente: { id, nombre } }
-      if (tipoLogin === "pacientes" && data.paciente) {
-        sessionStorage.setItem("paciente", JSON.stringify(data.paciente));
+      if (data.usuario) {
+        sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
       }
 
       window.location.href = "/dashboard";
@@ -144,16 +103,14 @@ export default function LoginPage() {
 
       {/* HEADER */}
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b bg-white">
-        <span className="font-bold text-sm truncate max-w-[80vw]">SIM - {empresaNombre ? empresaNombre : ""}</span>
+        <span className="font-bold text-sm truncate max-w-[80vw]">SIM - {empresaNombre || ""}</span>
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-[440px] space-y-6">
-
           <Card>
             <CardContent className="p-6 space-y-6">
               <div className="text-center space-y-2">
-
                 <div className="flex justify-center mb-4">
                   <img
                     src={logoUrl}
@@ -163,68 +120,19 @@ export default function LoginPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-2xl font-semibold">
-                  Iniciar sesión
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Ingresa tus credenciales
-                </p>
+                <h1 className="text-2xl font-semibold">Iniciar sesión</h1>
+                <p className="text-sm text-muted-foreground">Ingresa tus credenciales</p>
               </div>
 
-              {/* TABS */}
-              <Tabs value={tipoLogin} onValueChange={(value) => setTipoLogin(value as "pacientes" | "empresas")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="pacientes" className="w-full">
-                    Pacientes
-                  </TabsTrigger>
-                  <TabsTrigger value="empresas" className="w-full">
-                    Empresas
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-
               <form className="space-y-4" onSubmit={handleLogin}>
-
-                {tipoLogin === "pacientes" && (
-                  <>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Tipo Documento</label>
-                      <Select value={tipoDocumento} onValueChange={setTipoDocumento}>
-                        <SelectTrigger className="w-full h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="CC">CC - Cédula de Ciudadanía</SelectItem>
-                          <SelectItem value="CE">CE - Cédula de Extranjería</SelectItem>
-                          <SelectItem value="PA">PA - Pasaporte</SelectItem>
-                          <SelectItem value="TI">TI - Tarjeta de Identidad</SelectItem>
-                          <SelectItem value="RC">RC - Registro Civil</SelectItem>
-
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Número de documento</label>
-                      <Input
-                        placeholder="Número de documento"
-                        value={documento}
-                        onChange={(e) => setDocumento(e.target.value)}
-                      />
-                    </div>
-
-                  </>
-                )}
-
-                {tipoLogin === "empresas" && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Usuario</label>
-                    <Input
-                      placeholder="Usuario empresa"
-                      value={usuarioEmpresa}
-                      onChange={(e) => setUsuarioEmpresa(e.target.value)}
-                    />
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Usuario</label>
+                  <Input
+                    placeholder="Usuario Consultorio o Ips"
+                    value={usuario}
+                    onChange={(e) => setUsuario(e.target.value)}
+                  />
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Contraseña</label>

@@ -10,6 +10,7 @@ export type SessionPayload = {
     nombre: string;
     email?: string;
     tipo?: string; // "empresa" | undefined (paciente)
+    cargo?: string;
 };
 
 /** Firma y devuelve un JWT con el payload dado */

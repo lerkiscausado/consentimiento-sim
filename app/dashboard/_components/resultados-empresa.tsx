@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type ResultadoEmpresa = {
     id: number;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export function ResultadosEmpresa({ refreshKey }: Props = {}) {
+    const router = useRouter();
     const [data, setData] = useState<ResultadoEmpresa[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
             item.identificacion.toLowerCase().includes(s) ||
             item.estudio.toLowerCase().includes(s) ||
             item.entidad.toLowerCase().includes(s) ||
-            (item.consecutivo && item.consecutivo.toLowerCase().includes(s))
+            (item.consecutivo && String(item.consecutivo).toLowerCase().includes(s))
         );
     });
 
@@ -105,10 +107,10 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
         <div className="bg-white dark:bg-portal-card rounded-xl border border-portal-border dark:border-gray-700">
             <div className="px-6 py-5 border-b border-portal-border dark:border-gray-700">
                 <h3 className="text-portal-text dark:text-white font-semibold text-lg">
-                    Resultados de la Empresa
+                    Listado de pacientes Consentimientos Informados
                 </h3>
                 <p className="text-sm text-portal-muted dark:text-gray-400 mt-0.5">
-                    Últimas 100 órdenes de tu contrato.
+                    Últimos 50 pacientes en admisiones.
                 </p>
             </div>
 
@@ -164,10 +166,10 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                 <thead>
                                     <tr className="border-b border-portal-border dark:border-gray-700">
                                         <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Fecha</th>
-                                        <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Identificación</th>
                                         <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Paciente</th>
                                         <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Estudio</th>
                                         <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Entidad</th>
+                                        <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Estado</th>
                                         <th className="text-left py-2.5 px-4 text-xs font-bold text-portal-text dark:text-white uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
@@ -180,19 +182,14 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                             <td className="py-3 px-4 text-xs text-portal-text dark:text-white whitespace-nowrap">
                                                 {formatDate(resultado.fecha_ingreso)}
                                             </td>
-                                            <td className="py-3 px-4 text-xs text-portal-text dark:text-white whitespace-nowrap">
-                                                {resultado.identificacion}
-                                            </td>
                                             <td className="py-3 px-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-bold text-portal-text dark:text-white">
                                                         {resultado.paciente}
                                                     </span>
-                                                    {resultado.consecutivo && (
-                                                        <span className="text-[10px] text-portal-muted dark:text-gray-400 mt-0.5">
-                                                            ID: {resultado.consecutivo}
-                                                        </span>
-                                                    )}
+                                                    <span className="text-[10px] text-portal-muted dark:text-gray-400 mt-0.5">
+                                                        {resultado.identificacion}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="py-3 px-4 text-xs text-portal-text dark:text-white">
@@ -202,35 +199,33 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                                 {resultado.entidad}
                                             </td>
                                             <td className="py-3 px-4">
-                                                {resultado.estado?.toUpperCase() === "PENDIENTE" ? (
+                                                <span className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${resultado.estado?.toUpperCase() === 'PENDIENTE'
+                                                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                                    : resultado.estado?.toUpperCase() === 'CANCELADO'
+                                                        ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                        : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                    }`}>
+                                                    {resultado.estado || 'SIN ESTADO'}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-2">
                                                     <button
                                                         type="button"
-                                                        disabled
-                                                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed flex items-center gap-1.5"
+                                                        onClick={() => router.push(`/dashboard/consentimiento?id=${resultado.id}`)}
+                                                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors flex items-center gap-1.5 border border-green-200 dark:border-green-800"
                                                     >
-                                                        <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
-                                                        Pendiente
+                                                        <span className="material-symbols-outlined text-sm">assignment_turned_in</span>
+                                                        Consentimiento
                                                     </button>
-                                                ) : (
                                                     <button
                                                         type="button"
-                                                        onClick={() => descargarReportePdf(resultado)}
-                                                        disabled={descargandoId === resultado.id}
-                                                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-portal-primary text-white hover:bg-portal-primary/90 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5 border border-red-200 dark:border-red-800"
                                                     >
-                                                        {descargandoId === resultado.id ? (
-                                                            <>
-                                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                                                                Descargando...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
-                                                                Descargar
-                                                            </>
-                                                        )}
+                                                        <span className="material-symbols-outlined text-sm">assignment_late</span>
+                                                        Disentimiento
                                                     </button>
-                                                )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -259,8 +254,8 @@ export function ResultadosEmpresa({ refreshKey }: Props = {}) {
                                             type="button"
                                             onClick={() => setCurrentPage(page)}
                                             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${currentPage === page
-                                                    ? "bg-portal-primary text-white"
-                                                    : "text-portal-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
+                                                ? "bg-portal-primary text-white"
+                                                : "text-portal-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                                                 }`}
                                         >
                                             {page}

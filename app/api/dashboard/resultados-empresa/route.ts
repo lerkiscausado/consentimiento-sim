@@ -24,23 +24,22 @@ export async function GET() {
 
         const [rows]: any = await pool.query(
             `SELECT 
-          o.id,
-          o.consecutivo,
+          o.id,          
           o.fecha_ingreso,
           CONCAT(u.id_tipo_identificacion, u.identificacion) AS identificacion,
           CONCAT(u.primer_nombre,' ', u.primer_apellido,' ', u.segundo_apellido) AS paciente,
-          e.nombre AS estudio,
-          s.nombre AS entidad,
+          te.nombre_tipo_estudio AS estudio,
+          c.nombre AS entidad,
+          o.id as consecutivo,
           o.estado
       FROM ordenes o
-      JOIN subentidades s ON o.id_subentidad = s.id
-      JOIN especimenes e ON o.id_especimen = e.id
+      JOIN contratos c ON o.id_contrato = c.id
+      JOIN tipo_estudio te ON o.id_tipo_estudio = te.id
       JOIN usuarios u ON o.id_usuario = u.id
-      WHERE o.id_contrato = ?
-        AND (o.estado IS NULL OR o.estado <> 'CANCELADO')
+      LEFT JOIN consentimiento_informado ci ON o.id=ci.id_orden
+      WHERE ci.id_orden IS NULL AND (o.estado IS NULL OR o.estado <> 'CANCELADO')
       ORDER BY o.id DESC
-      LIMIT 150`,
-            [id]
+      LIMIT 50`
         );
 
         return NextResponse.json({

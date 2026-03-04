@@ -34,8 +34,7 @@ export function DashboardContent({ userName, tipo }: Props) {
             Bienvenido, {userName}
           </h2>
           <p className="text-portal-muted dark:text-gray-400 text-base font-normal">
-            Aquí puedes consultar y descargar tus estudios clínicos de los
-            últimos 12 meses.
+            Aquí puedes gestionar los consentimientos informados de los pacientes.
           </p>
         </div>
         <div className="flex gap-3">

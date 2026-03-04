@@ -68,8 +68,7 @@ export default function DashboardLayout({
               description
             </span>
             <p className={`text-sm ${isActive("/dashboard") ? "font-semibold" : "font-medium"}`}>
-              Resultados
-            </p>
+              Pacientes            </p>
           </Link>
           {session?.tipo !== "empresa" && (
             <Link
