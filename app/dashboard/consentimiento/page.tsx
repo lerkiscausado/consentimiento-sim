@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SignatureDialog } from "./_components/signature-dialog";
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-export default function ConsentimientoPage() {
+function ConsentimientoContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const id = searchParams.get("id");
@@ -238,7 +239,7 @@ export default function ConsentimientoPage() {
                                 <>
                                     <p>
                                         confirmo que he recibido información clara y comprensible sobre mi diagnóstico
-                                        y las opciones de tratamiento disponibles, proporcionadas por el <span className="font-bold">Dr. {especialista.nombre || "Marcelo Ramírez Barrios"}</span>. Se me ha
+                                        y las opciones de tratamiento disponibles, proporcionadas por el Dr. Marcelo Ramírez Barrios. Se me ha
                                         explicado de manera detallada la naturaleza de mi condición, así como los posibles enfoques terapéuticos,
                                         incluyendo los beneficios, riesgos y desventajas de cada uno de ellos.
                                     </p>
@@ -258,13 +259,21 @@ export default function ConsentimientoPage() {
                             ) : (
                                 <>
                                     <p>
-                                        obrando en nombre propio y en pleno uso de mis facultades mentales, certifico que he sido informado de manera clara y comprensible sobre el procedimiento médico al cual seré sometido(a).
+                                        confirmo que he recibido información clara y comprensible sobre mi
+                                        diagnóstico y las opciones de tratamiento disponibles, proporcionadas por el Dr. Marcelo Ramírez Barrios. Se
+                                        me ha explicado de manera detallada la naturaleza de mi condición, así como los posibles enfoques
+                                        terapéuticos, incluyendo los beneficios, riesgos y desventajas de cada uno de ellos.
                                     </p>
                                     <p>
-                                        He tenido la oportunidad de formular todas las preguntas necesarias, las cuales han sido resueltas satisfactoriamente. Comprendo la naturaleza del procedimiento, sus beneficios esperados, así como los riesgos inherentes y posibles complicaciones que podrían presentarse durante o después de su ejecución.
+                                        Así mismo, se me ha informado sobre los cuidados necesarios en caso de optar por alguna de las alternativas
+                                        propuestas y la importancia de un seguimiento adecuado. Se me ha dejado claro que no seguir los
+                                        tratamientos recomendados también puede tener implicaciones para mi salud a largo plazo.
                                     </p>
                                     <p>
-                                        Entiendo que ningún procedimiento médico está exento de riesgos y que los resultados pueden variar según el caso clínico. Por lo tanto, manifiesto mi voluntad libre y consciente de autorizar al personal médico y asistencial para la realización de dicho procedimiento, asumiendo la responsabilidad que de ello se derive.
+                                        Declaro que he comprendido toda la información proporcionada, he tenido la oportunidad de hacer preguntas
+                                        y, en consecuencia, autorizo al Dr. Marcelo Ramírez Barrios y su equipo a continuar con el proceso de
+                                        evaluación y orientación respecto a mi plan de manejo. Reconozco que la decisión final sobre el tratamiento
+                                        a seguir es completamente voluntaria y será tomada por mí en el momento que considere adecuado.
                                     </p>
                                 </>
                             )}
@@ -415,5 +424,18 @@ export default function ConsentimientoPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ConsentimientoPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-portal-primary"></div>
+                <p className="mt-4 text-slate-600 dark:text-gray-400 font-medium">Cargando aplicación...</p>
+            </div>
+        }>
+            <ConsentimientoContent />
+        </Suspense>
     );
 }
