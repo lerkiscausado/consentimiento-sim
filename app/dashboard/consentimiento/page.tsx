@@ -29,7 +29,13 @@ function ConsentimientoContent() {
 
     // Form states
     const [municipio, setMunicipio] = useState("Cartagena de Indias");
-    const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+    const [fecha, setFecha] = useState(() => {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    });
     const [paciente, setPaciente] = useState("");
     const [identificacion, setIdentificacion] = useState("");
     const [firmaPaciente, setFirmaPaciente] = useState<string | null>(null);
@@ -55,7 +61,7 @@ function ConsentimientoContent() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     id_orden: parseInt(id),
-                    fecha: new Date().toISOString(),
+                    fecha: fecha,
                     firma: firmaPaciente,
                     acudiente: acudiente || null,
                     relacion: relacion || null,
